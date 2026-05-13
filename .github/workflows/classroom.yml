@@ -1,0 +1,74 @@
+name: Autograding Tests
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  grade:
+    name: Autograding
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 20
+        uses: actions/setup-java@v4
+        with:
+          java-version: '20'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Part 1 - Feasible Solution
+        id: part1-feasible
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: 'Part 1 - Feasible Solution'
+          setup-command: ''
+          command: "./gradlew test --tests 'rs.raf.mtomic.ga2026.cvrp.grading.Part1GradingTest.testFeasible' --info"
+          timeout: '10'
+          max-score: '5'
+
+      - name: Part 1 - Within 30%
+        id: part1-30
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: 'Part 1 - Within 30% of Best Known'
+          command: "./gradlew test --tests 'rs.raf.mtomic.ga2026.cvrp.grading.Part1GradingTest.testWithin30Percent' --info"
+          timeout: '10'
+          max-score: '5'
+
+      - name: Part 1 - Within 15%
+        id: part1-15
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: 'Part 1 - Within 15% of Best Known'
+          command: "./gradlew test --tests 'rs.raf.mtomic.ga2026.cvrp.grading.Part1GradingTest.testWithin15Percent' --info"
+          timeout: '10'
+          max-score: '5'
+
+      - name: Part 1 - Within 5%
+        id: part1-5
+        uses: education/autograding-command-grader@v1
+        with:
+          test-name: 'Part 1 - Within 5% of Best Known'
+          command: "./gradlew test --tests 'rs.raf.mtomic.ga2026.cvrp.grading.Part1GradingTest.testWithin5Percent' --info"
+          timeout: '10'
+          max-score: '5'
+
+      - name: Autograding Reporter
+        uses: education/autograding-grading-reporter@v1
+        env:
+          PART1-FEASIBLE_RESULTS: "${{ steps.part1-feasible.outputs.result }}"
+          PART1-30_RESULTS: "${{ steps.part1-30.outputs.result }}"
+          PART1-15_RESULTS: "${{ steps.part1-15.outputs.result }}"
+          PART1-5_RESULTS: "${{ steps.part1-5.outputs.result }}"
+        with:
+          runners: part1-feasible,part1-30,part1-15,part1-5

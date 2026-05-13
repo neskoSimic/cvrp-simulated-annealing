@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group = 'rs.raf.mtomic'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_20
+    targetCompatibility = JavaVersion.VERSION_20
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+    maxHeapSize = '512m'
+}
+
+task runPart1(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'rs.raf.mtomic.ga2026.cvrp.runner.Runner'
+    args = ['part1']
+}
